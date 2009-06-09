@@ -1308,25 +1308,20 @@ void WRFDocument::_buildDefaultTransferFunctions ()
 {
   // Typedefs.
   typedef OsgVolume::TransferFunction1D TransferFunction1D;
-  typedef TransferFunction1D::Colors           Colors;
+  typedef TransferFunction1D::RGB Color;
 
   const unsigned int size ( 256 );
 
-  Colors grayscale ( size );
-  Colors hsv       ( size );
-  Colors hsv2      ( size );
-  Colors greenToRed ( size );
-
-  const Colors::size_type RED_CHANNEL   ( 0 );
-  const Colors::size_type GREEN_CHANNEL ( 1 );
-  const Colors::size_type BLUE_CHANNEL  ( 2 );
-  const Colors::size_type ALPHA_CHANNEL ( 3 );
+  TransferFunction1D::RefPtr grayscale ( new TransferFunction1D );
+  TransferFunction1D::RefPtr hsv       ( new TransferFunction1D );
+  TransferFunction1D::RefPtr hsv2      ( new TransferFunction1D );
+  TransferFunction1D::RefPtr greenToRed ( new TransferFunction1D );
 
   // Don't draw voxels with a value of zero.
-  grayscale.at ( 0 ) [ 3 ] = 0;
-  hsv.at ( 0 ) [ 3 ] = 0;
-  hsv2.at ( 0 ) [ 3 ] = 0;
-  greenToRed.at ( 0 )[3] = 0;
+  grayscale->opacity ( 0, 0 );
+  hsv->opacity ( 0, 0 );
+  hsv2->opacity ( 0, 0 );
+  greenToRed->opacity ( 0, 0 );
 
   for ( unsigned int i = 1; i < size; ++i )
   {
@@ -1334,27 +1329,20 @@ void WRFDocument::_buildDefaultTransferFunctions ()
     unsigned int alpha ( 35 );
 
     unsigned char c ( 120 - ( static_cast < unsigned int > ( value * 120 ) ) );
-    grayscale.at ( i )[RED_CHANNEL] = c;
-    grayscale.at ( i )[GREEN_CHANNEL] = c;
-    grayscale.at ( i )[BLUE_CHANNEL] = c;
-    grayscale.at ( i )[ALPHA_CHANNEL] = alpha;
+    grayscale->color ( i, Color ( c / 255.0, c / 255.0, c / 255.0 ) );
+    grayscale->opacity ( i, alpha / 255.0 );
 
     float r ( 0.0 ), g ( 0.0 ), b ( 0.0 );
     Usul::Functions::Color::hsvToRgb ( r, g, b, 300 - ( value * 300 ), 1.0f, 1.0f );
-    hsv.at ( i )[RED_CHANNEL] = static_cast < unsigned char > ( r * 255 );
-    hsv.at ( i )[GREEN_CHANNEL] = static_cast < unsigned char > ( g * 255 );
-    hsv.at ( i )[BLUE_CHANNEL] = static_cast < unsigned char > ( b * 255 );
-    hsv.at ( i )[ALPHA_CHANNEL] = alpha;
+    hsv->color ( i, Color ( r, g, b ) );
+    hsv->opacity ( i, alpha / 255.0 );
 
-    hsv2.at ( i )[RED_CHANNEL] = static_cast < unsigned char > ( r * 255 );
-    hsv2.at ( i )[GREEN_CHANNEL] = static_cast < unsigned char > ( g * 255 );
-    hsv2.at ( i )[BLUE_CHANNEL] = static_cast < unsigned char > ( b * 255 );
+    hsv2->color ( i, Color ( r, g, b ) );
     if ( value < .25 || value > .75 )
-      hsv2.at ( i )[ALPHA_CHANNEL] = static_cast < unsigned char > ( Usul::Math::absolute ( ( value - 0.5 ) * ( alpha * 2 ) ) );
+      hsv2->opacity ( i, static_cast < unsigned char > ( Usul::Math::absolute ( ( value - 0.5 ) * ( alpha * 2 ) / 255.0 ) ) );
     else
-      hsv2.at ( i )[ALPHA_CHANNEL] = 0;
+      hsv2->opacity ( i, 0.0 );
 
-    const double orginalValue ( value );
     const double startValue ( 0.7 );
     const double range ( 1.0 - startValue );
     value = startValue + ( value * range );
@@ -1364,26 +1352,26 @@ void WRFDocument::_buildDefaultTransferFunctions ()
     const float v ( 1.0 );
 
     Usul::Functions::Color::hsvToRgb ( r, g, b, hue, saturation, v );
-    greenToRed.at ( i )[RED_CHANNEL] = static_cast < unsigned char > ( r * 255 );
-    greenToRed.at ( i )[GREEN_CHANNEL] = static_cast < unsigned char > ( g * 255 );
-    greenToRed.at ( i )[BLUE_CHANNEL] = static_cast < unsigned char > ( b * 255 );
+    greenToRed->color ( i, Color ( r, g, b ) );
     if ( value < 0.9 )
     {
-      greenToRed.at ( i )[ALPHA_CHANNEL] = 15;
+      greenToRed->opacity ( i, 15.0 / 255.0 );
     }
     else
     {
-      greenToRed.at ( i )[ALPHA_CHANNEL] = alpha;
+      greenToRed->opacity ( i, alpha / 255.0 );
     }
 
     if ( r > 0.8 )
-      greenToRed.at ( i )[ALPHA_CHANNEL] = 127;
+    {
+      greenToRed->opacity ( i, 127.0 / 255.0 );
+    }
   }
 
-  _transferFunctions.push_back ( new TransferFunction1D ( grayscale ) );
-  _transferFunctions.push_back ( new TransferFunction1D ( hsv ) );
-  _transferFunctions.push_back ( new TransferFunction1D ( hsv2 ) );
-  _transferFunctions.push_back ( new TransferFunction1D ( greenToRed ) );
+  _transferFunctions.push_back ( grayscale.get() );
+  _transferFunctions.push_back ( hsv.get() );
+  _transferFunctions.push_back ( hsv2.get() );
+  _transferFunctions.push_back ( greenToRed.get() );
 }
 
 

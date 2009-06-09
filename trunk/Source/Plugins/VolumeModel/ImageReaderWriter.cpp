@@ -56,10 +56,6 @@ void ImageReaderWriter::read ( const std::string &name, VolumeDocument &doc, Unk
   if ( !image.valid() )
     throw std::runtime_error ( "Error 1350090608: Could not load image file: " + name );
 
-  // Get the dimensions.
-  const int width  ( image->s() );
-  const int height ( image->t() );
-
   // Set the image name and push it into our list.
   image->setFileName ( name );
   _imageList.push_back ( image.get() );

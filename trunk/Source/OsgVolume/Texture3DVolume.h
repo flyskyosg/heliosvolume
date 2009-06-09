@@ -40,33 +40,33 @@ public:
   Texture3DVolume();
   Texture3DVolume( osg::Program * );
   
-  static osg::Program*             createProgram ( bool useTransferFunction = true );
+  static osg::Program*             createProgram ( bool useTransferFunction = true, bool useShading = false );
   
   /// Get/Set the image.
-  osg::Image*                      image ();
-  const osg::Image*                image () const;
+  osg::Image*                      image();
+  const osg::Image*                image() const;
   void                             image ( osg::Image* image, TextureUnit unit = 0 );
 
   /// Get/Set the number of planes.
-  unsigned int                     numPlanes () const;
+  unsigned int                     numPlanes() const;
   void                             numPlanes ( unsigned int num );
 
   /// Get/Set the bounding box.
   void                             boundingBox ( const osg::BoundingBox& bb );
-  const osg::BoundingBox&          boundingBox () const;
+  const osg::BoundingBox&          boundingBox() const;
 
   /// Get/Set the resize power of two flag.
   void                             resizePowerTwo ( bool b );
-  bool                             resizePowerTwo () const;
+  bool                             resizePowerTwo() const;
 
   /// Get/Set the transfer function flag.
   void                             useTransferFunction ( bool b );
-  bool                             useTransferFunction () const;
+  bool                             useTransferFunction() const;
   
   /// Get/Set the transfer function as an image.
   void                             transferFunction ( TransferFunction* tf, TextureUnit unit = 1 );
-  TransferFunction*                transferFunction () const;
-
+  TransferFunction*                transferFunction() const;
+  
 protected:
   virtual ~Texture3DVolume();
 

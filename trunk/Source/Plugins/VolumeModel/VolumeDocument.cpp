@@ -21,6 +21,9 @@
 #include "OsgVolume/Texture3DVolume.h"
 #include "OsgVolume/GPURayCasting.h"
 
+#include "OsgTools/Box.h"
+#include "OsgTools/State/StateSet.h"
+
 #include "Usul/File/Path.h"
 #include "Usul/Strings/Case.h"
 #include "Usul/Interfaces/IViewport.h"
@@ -47,6 +50,16 @@ VolumeDocument::VolumeDocument() : BaseClass ( "Volume Document" ),
   _transferFunctions(),
   _activeTransferFunction()
 {
+  OsgVolume::TransferFunction1D::RefPtr tf ( new OsgVolume::TransferFunction1D );
+  tf->color ( 0, Usul::Math::Vec3f ( 0.0f, 0.0f, 1.0f ) );
+  tf->opacity ( 0, 0.01f );
+  
+  tf->color ( 255, Usul::Math::Vec3f ( 1.0f, 0.0f, 0.0f ) );
+  tf->opacity ( 255, 1.0f );
+  
+  tf->colorMode ( OsgVolume::TransferFunction1D::COLOR_MODE_HSV );
+  
+  this->addTransferFunction ( tf.get() );
 }
 
 
@@ -75,6 +88,8 @@ Usul::Interfaces::IUnknown *VolumeDocument::queryInterface ( unsigned long iid )
     return static_cast < Usul::Interfaces::IBuildScene* > ( this );
   case Usul::Interfaces::IUpdateListener::IID:
     return static_cast < Usul::Interfaces::IUpdateListener * > ( this );
+  case OsgVolume::ITransferFunction1DList::IID:
+    return static_cast<OsgVolume::ITransferFunction1DList*> ( this );
   default:
     return BaseClass::queryInterface ( iid );
   }
@@ -293,12 +308,8 @@ bool VolumeDocument::dirty () const
 
 void VolumeDocument::updateNotify ( Usul::Interfaces::IUnknown *caller )
 {
-  Usul::Interfaces::IViewport::QueryPtr vp ( caller );
-  if ( vp.valid () )
-    _projection->setMatrix ( osg::Matrix::ortho2D ( vp->x(), vp->width(), vp->y(), vp->height () ) );
-
-  if ( this->dirty ( ) )
-    this->_buildScene ();
+  if ( this->dirty() )
+    this->_buildScene();
 }
 
 
@@ -319,37 +330,35 @@ void VolumeDocument::_buildScene ()
     volume->numPlanes ( 256 );
     volume->resizePowerTwo ( true );
     volume->image ( this->image3D() );
-    volume->boundingBox ( this->boundingBox () );
-
-    if ( _transferFunctions.size() > 0 )
-      volume->transferFunction ( _transferFunctions.at ( _activeTransferFunction ) );
-
-    _root->addChild ( volume.get() );
+    volume->boundingBox ( this->boundingBox() );
+    
 #else
     osg::ref_ptr < OsgVolume::GPURayCasting > volume ( new OsgVolume::GPURayCasting );
     volume->samplingRate ( 0.05 );
     //volume->resizePowerTwo ( true );
     volume->image ( this->image3D() );
-    osg::BoundingBox bb ( osg::Vec3 ( 0.0, 0.0, 0.0 ), osg::Vec3 ( 1.0, 1.0, 1.0 ) );
-    volume->boundingBox ( bb );
-    //volume->boundingBox ( this->boundingBox () );
-
-    volume->camera ( osg::Vec3 ( 0.50, 0.5, 1.0 ) );
+    volume->boundingBox ( this->boundingBox() );
+    
+#endif
 
     if ( _transferFunctions.size() > 0 )
       volume->transferFunction ( _transferFunctions.at ( _activeTransferFunction ) );
-
-    osg::ref_ptr < osg::MatrixTransform > mt ( new osg::MatrixTransform );
-
-    mt->addChild ( volume.get() );
-
+    
+    OsgTools::ColorBox box ( volume->boundingBox() );
+    box.color_policy().color ( osg::Vec4 ( 0, 0, 1, 1 ) );
+    
+    // Position it.
+    osg::ref_ptr<osg::MatrixTransform> mt ( new osg::MatrixTransform );
+    mt->setMatrix ( osg::Matrix::translate ( volume->boundingBox().center() ) );
+    mt->addChild ( box() );
+    
+    // Wire-frame.
+    OsgTools::State::StateSet::setPolygonsLines ( mt.get(), true );
+    OsgTools::State::StateSet::setLighting ( mt.get(), false );
+    
     _root->addChild ( mt.get() );
-
-    _node = volume.get();
-
-
-    //_root->addChild ( volume.get() );
-#endif
+    
+    _root->addChild ( volume.get() );
   }
 
   this->dirty ( false );
@@ -407,7 +416,7 @@ void VolumeDocument::boundingBox ( const osg::BoundingBox& bb )
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-osg::BoundingBox VolumeDocument::boundingBox () const
+osg::BoundingBox VolumeDocument::boundingBox() const
 {
   Guard guard ( this->mutex() );
   return _bb;
@@ -425,4 +434,68 @@ void VolumeDocument::addTransferFunction ( TransferFunction* tf )
   Guard guard ( this->mutex () );
   _activeTransferFunction = _transferFunctions.size();
   _transferFunctions.push_back ( tf );
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Add a transfer function (ITransferFunction1DList).
+//
+///////////////////////////////////////////////////////////////////////////////
+
+void VolumeDocument::addTransferFunction1D ( TransferFunction1DPtr tf )
+{
+  this->addTransferFunction ( tf );
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Get the i'th transfer function (ITransferFunction1DList).
+//
+///////////////////////////////////////////////////////////////////////////////
+
+VolumeDocument::TransferFunction1DPtr VolumeDocument::getTransferFunction1D ( unsigned int i ) const
+{
+  Guard guard ( this->mutex() );
+  return ( i < _transferFunctions.size() ? _transferFunctions.at ( i ) : 0x0 );
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Get the number of 1D transfer functions (ITransferFunction1DList).
+//
+///////////////////////////////////////////////////////////////////////////////
+
+unsigned int VolumeDocument::getNumberOfTransferFunctions1D() const
+{
+  Guard guard ( this->mutex() );
+  return _transferFunctions.size();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Set the active transfer function (ITransferFunction1DList).
+//
+///////////////////////////////////////////////////////////////////////////////
+
+void VolumeDocument::setActiveTransferFunction ( unsigned int index )
+{
+  Guard guard ( this->mutex() );
+  _activeTransferFunction = index;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Get the active transfer function (ITransferFunction1DList).
+//
+///////////////////////////////////////////////////////////////////////////////
+
+unsigned int VolumeDocument::getActiveTransferFunction() const
+{
+  Guard guard ( this->mutex() );
+  return _activeTransferFunction;
 }

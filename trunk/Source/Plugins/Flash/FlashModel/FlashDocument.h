@@ -58,9 +58,8 @@ public:
   typedef Usul::Documents::Document            BaseClass;
   typedef OsgVolume::TransferFunction   TransferFunction;
   typedef OsgVolume::TransferFunction1D TransferFunction1D;
-  typedef TransferFunction1D::Colors           Colors;
-  typedef TransferFunction::RefPtr             TransferFunctionPtr;
-  typedef std::vector<Colors>                  TransferFunctions;
+  typedef TransferFunction1D::RefPtr    TransferFunctionPtr;
+  typedef std::vector<TransferFunctionPtr>     TransferFunctions;
   
 #if USE_RAY_CASTING
   typedef OsgVolume::GPURayCasting Volume;

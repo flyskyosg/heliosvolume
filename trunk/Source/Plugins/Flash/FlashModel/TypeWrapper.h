@@ -12,6 +12,16 @@
 #define __FLASH_MODEL_TYPE_WRAPPER_H__
 
 #include "Usul/Math/Vector4.h"
+#include "Usul/Factory/RegisterCreator.h"
+
+#include "Serialize/Xml/DataMemberMap.h"
+#include "Serialize/Xml/ValueMapMember.h"
+
+#include "OsgVolume/TransferFunction1D.h"
+
+using OsgVolume::TransferFunction1D;
+
+USUL_FACTORY_REGISTER_CREATOR ( TransferFunction1D );
 
 #include <vector>
 
@@ -25,70 +35,67 @@ namespace Serialize {
 namespace XML {
 
   
-template < > struct TypeWrapper < std::vector < Usul::Math::Vec4uc > >
+template < > struct TypeWrapper <TransferFunction1D::RefPtr>
 {
-  typedef TypeWrapper < std::vector < Usul::Math::Vec4uc > > ThisType;
+  typedef TypeWrapper < std::vector<TransferFunction1D::RefPtr> > ThisType;
+  typedef TransferFunction1D::ColorMap ColorMap;
+  typedef TransferFunction1D::OpacityMap OpacityMap;
+  
   static void addAtribute ( const std::string &name, const std::string &value, XmlTree::Node &node )
   {
+    node.attributes()[name] = value;
   }
-  static const char *className ( const std::vector < Usul::Math::Vec4uc > &value )
+  static const char *className ( const TransferFunction1D::RefPtr &value )
   {
-    return "std::vector<Usul::Math::Vec4uc>";
+    return "TransferFunction1D";
   }
-  static std::vector<Usul::Math::Vec4uc> create ( const std::string &typeName )
+  static TransferFunction1D::RefPtr create ( const std::string &typeName )
   {
-    return std::vector<Usul::Math::Vec4uc>();
+    return new TransferFunction1D;
   }
-  static void deserialize ( const XmlTree::Node &node, std::vector < Usul::Math::Vec4uc >  &value )
+  static void deserialize ( const XmlTree::Node &node, TransferFunction1D::RefPtr  &value )
   {
-    typedef XmlTree::Node::Children::const_iterator Itr;
-
-    value.clear();
+    ColorMap colorMap;
+    OpacityMap opacityMap;
+    unsigned int mode;
     
-    for ( Itr i = node.children().begin(); i != node.children().end(); ++i )
-    {
-      XmlTree::Node::RefPtr element ( i->get() );
-      if ( true == element.valid() && element->name() == "element" )
-      {
-        Usul::Math::Vec4uc v;
+    Serialize::XML::DataMemberMap data;
     
-        unsigned short a ( 0 ), b ( 0 ), c ( 0 ), d ( 0 );
-        std::istringstream in ( element->value() );
-        in >> a >> b >> c >> d;
-        v.set ( static_cast<unsigned char> ( a ), static_cast<unsigned char> ( b ), static_cast<unsigned char> ( c ), static_cast<unsigned char> ( d ) );
-
-        value.push_back ( v );
-      }
-    }
+    data.addMember ( "color_map", colorMap );
+    data.addMember ( "opacities_map", opacityMap );
+    data.addMember ( "color_mode", mode );
+    
+    data.deserialize ( node );
+    
+    value->colorMap ( colorMap );
+    value->opacityMap ( opacityMap );
+    value->colorMode ( static_cast<TransferFunction1D::ColorMode> ( mode ) );
   }
   static void getAttribute ( const std::string &name, const XmlTree::Node &node, std::string &value )
   {
-    value.clear();
+    XmlTree::Node::Attributes::const_iterator i = node.attributes().find ( name );
+    value.assign ( ( node.attributes().end() == i ) ? "" : i->second );
   }
-  static bool isValid ( const std::vector < Usul::Math::Vec4uc >  &value )
+  static bool isValid ( const TransferFunction1D::RefPtr &value )
   {
-    return true;
+    return value.valid();
   }
-  static void set ( const std::string &s, std::vector < Usul::Math::Vec4uc > &value )
+  static void set ( const std::string &s, TransferFunction1D::RefPtr &value )
   {
   }
-  static void serialize ( const std::vector<Usul::Math::Vec4uc> &value, XmlTree::Node &node )
+  static void serialize ( const TransferFunction1D::RefPtr &value, XmlTree::Node &node )
   {
-    for ( std::vector<Usul::Math::Vec4uc>::const_iterator iter = value.begin(); iter != value.end(); ++iter )
-    {
-      XmlTree::Node::RefPtr child ( new XmlTree::Node ( "element" ) );\
+    ColorMap colorMap ( value->colorMap() );
+    OpacityMap opacityMap ( value->opacityMap() );
+    unsigned int mode ( value->colorMode() );
     
-      Usul::Math::Vec4uc v ( *iter );
+    Serialize::XML::DataMemberMap data;
     
-      std::ostringstream out;
-      out << static_cast<unsigned short> ( v[0] ); out << ' ';
-      out << static_cast<unsigned short> ( v[1] ); out << ' ';
-      out << static_cast<unsigned short> ( v[2] ); out << ' ';
-      out << static_cast<unsigned short> ( v[3] );
-      
-      child->value ( out.str() );
-      node.append ( child.get() );
-    }
+    data.addMember ( "color_map", colorMap );
+    data.addMember ( "opacities_map", opacityMap );
+    data.addMember ( "color_mode", mode );
+    
+    data.serialize ( node );
   }
 };
   

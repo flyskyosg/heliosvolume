@@ -80,11 +80,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="OpenThreadsd.lib osgDBd.lib osgUtild.lib osgTextd.lib osgd.lib opengl32.lib glu32.lib"
+				AdditionalDependencies="OpenThreadsd.lib osgDBd.lib osgUtild.lib osgTextd.lib osgd.lib opengl32.lib glu32.lib Usuld.lib"
 				OutputFile="$(CADKIT_BIN_DIR)/OsgVolumed.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(OSG_LIB_DIR);$(BOOST_LIB_DIR);"
+				AdditionalLibraryDirectories="$(OSG_LIB_DIR);$(BOOST_LIB_DIR);$(CADKIT_LIB_DIR)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/OsgVolumed.pdb"
 				ImportLibrary="$(CADKIT_BIN_DIR)/OsgVolumed.lib"
@@ -179,11 +179,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="OpenThreads.lib osgDB.lib osgUtil.lib osgText.lib osg.lib opengl32.lib glu32.lib"
+				AdditionalDependencies="OpenThreads.lib osgDB.lib osgUtil.lib osgText.lib osg.lib opengl32.lib glu32.lib Usul.lib"
 				OutputFile="$(CADKIT_BIN_DIR)/OsgVolume.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(OSG_LIB_DIR);$(BOOST_LIB_DIR);"
+				AdditionalLibraryDirectories="$(OSG_LIB_DIR);$(BOOST_LIB_DIR);$(CADKIT_LIB_DIR)"
 				ProgramDatabaseFile=".\Release/OsgVolume.pdb"
 				ImportLibrary="$(CADKIT_BIN_DIR)/OsgVolume.lib"
 			/>
@@ -238,6 +238,10 @@
 			</File>
 			<File
 				RelativePath=".\Image3d.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ITransferFunction1DList.h"
 				>
 			</File>
 			<File

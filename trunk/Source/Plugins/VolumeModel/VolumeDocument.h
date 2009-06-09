@@ -18,7 +18,8 @@
 
 #include "VolumeModel/IReaderWriter.h"
 
-#include "OsgVolume/TransferFunction.h"
+#include "OsgVolume/TransferFunction1D.h"
+#include "OsgVolume/ITransferFunction1DList.h"
 
 #include "OsgTools/Configure/OSG.h"
 
@@ -37,13 +38,14 @@
 
 class VolumeDocument : public Usul::Documents::Document,
                        public Usul::Interfaces::IBuildScene,
-                       public Usul::Interfaces::IUpdateListener
+                       public Usul::Interfaces::IUpdateListener,
+                       public OsgVolume::ITransferFunction1DList
 {
 public:
 
   /// Useful typedefs.
   typedef Usul::Documents::Document BaseClass;
-  typedef OsgVolume::TransferFunction  TransferFunction;
+  typedef OsgVolume::TransferFunction1D  TransferFunction;
   typedef TransferFunction::RefPtr            TransferFunctionPtr;
   typedef std::vector < TransferFunctionPtr > TransferFunctions;
 
@@ -109,6 +111,19 @@ protected:
   /// Update (Usul::Interfaces::IUpdateListener).
   virtual void                             updateNotify ( Usul::Interfaces::IUnknown *caller );
 
+  /// Add a transfer function (ITransferFunction1DList).
+  virtual void addTransferFunction1D ( TransferFunction1DPtr );
+  
+  /// Get the i'th transfer function (ITransferFunction1DList).
+  virtual TransferFunction1DPtr getTransferFunction1D ( unsigned int i ) const;
+  
+  /// Get the number of 1D transfer functions (ITransferFunction1DList).
+  virtual unsigned int getNumberOfTransferFunctions1D() const;
+  
+  /// Set/get the active transfer function (ITransferFunction1DList).
+  virtual void setActiveTransferFunction ( unsigned int index );
+  virtual unsigned int getActiveTransferFunction() const;
+  
 private:
   osg::ref_ptr < osg::Group > _root;
   osg::ref_ptr < osg::Node > _node;

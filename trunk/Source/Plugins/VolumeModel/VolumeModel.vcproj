@@ -80,7 +80,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="osgd.lib osgDBd.lib osgTextd.lib Usuld.lib XmlTreed.lib"
+				AdditionalDependencies="osgd.lib osgDBd.lib osgTextd.lib Usuld.lib XmlTreed.lib OsgToolsd.lib"
 				OutputFile="$(CADKIT_BIN_DIR)/VolumeModel.plugd"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -179,7 +179,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="osg.lib osgDB.lib osgText.lib OpenThreads.lib Usul.lib XmlTree.lib"
+				AdditionalDependencies="osg.lib osgDB.lib osgText.lib OpenThreads.lib Usul.lib XmlTree.lib OsgTools.lib"
 				OutputFile="$(CADKIT_BIN_DIR)/VolumeModel.plug"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
