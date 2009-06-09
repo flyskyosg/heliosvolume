@@ -374,7 +374,7 @@ void FlashDocument::_buildScene ( Usul::Interfaces::IUnknown* caller )
       colors[5] = osg::Vec4 ( 0.0, 1.0, 1.0, 1.0 );
 
       // Typedefs.
-      TransferFunction1D::RefPtr tf ( new TransferFunction1D ( _transferFunctions.at ( _currentTransferFunction ) ) );
+      TransferFunction1D::RefPtr tf ( _transferFunctions.at ( _currentTransferFunction ) );
 
       const unsigned int numNodes ( timestep->numNodes() );
       
@@ -523,7 +523,7 @@ osg::Node* FlashDocument::_buildLegend ( double minimum, double maximum, Transfe
     osg::ref_ptr<osg::Image> copy ( static_cast<osg::Image*> ( image->clone ( osg::CopyOp::DEEP_COPY_ALL ) ) );
     for ( int i = 0; i < copy->s(); ++i )
     {
-      copy->data ( i )[3] = 255;
+      reinterpret_cast<float*> ( copy->data ( i ) )[3] = 1.0;
     }
     
     osg::ref_ptr<osg::Texture1D> texture ( new osg::Texture1D );
@@ -648,7 +648,8 @@ bool FlashDocument::dirty() const
 void FlashDocument::_buildDefaultTransferFunctions()
 {
   const unsigned int size ( 256 );  
-  Colors hsv       ( size );
+  TransferFunction1D::RefPtr transferFunction ( new TransferFunction1D );
+  typedef TransferFunction1D::RGB RGB;
 
   for ( unsigned int i = 0; i < size; ++i )
   {
@@ -657,16 +658,19 @@ void FlashDocument::_buildDefaultTransferFunctions()
     
     float r ( 0.0 ), g ( 0.0 ), b ( 0.0 );
     Usul::Functions::Color::hsvToRgb ( r, g, b, 300 - static_cast<float> ( u * 300.0f ), 1.0f, 1.0f );
-    hsv.at ( i ) [ 0 ] = static_cast < unsigned char > ( r * 255 );
-    hsv.at ( i ) [ 1 ] = static_cast < unsigned char > ( g * 255 );
-    hsv.at ( i ) [ 2 ] = static_cast < unsigned char > ( b * 255 );
-    hsv.at ( i ) [ 3 ] = static_cast < unsigned char > ( u < 0.5 ? 0 : u * alpha );
+    
+    RGB rgb ( r, g, b );
+    transferFunction->color ( i, rgb );
+
+    RGB::value_type opacity ( u < 0.5 ? 0 : u * alpha);
     
     if ( ( g > 0.75 || b > 0.5 ) && u >= 0.5)
-      hsv.at( i )[3] = 1;
+      opacity = 1;
+    
+    transferFunction->opacity ( i, opacity / 255.0 );
   }
   
-  _transferFunctions.push_back ( hsv );
+  _transferFunctions.push_back ( transferFunction );
 }
 
 

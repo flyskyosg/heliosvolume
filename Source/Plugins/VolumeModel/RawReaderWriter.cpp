@@ -127,27 +127,21 @@ void RawReaderWriter::_addTransferFunction ( VolumeDocument& doc, XmlTree::Node&
   // Typedefs.
   typedef XmlTree::Node::Children Children;
   typedef OsgVolume::TransferFunction1D::RefPtr TransferFunctionPtr;
-  typedef OsgVolume::TransferFunction1D::Colors Colors;
-  typedef Colors::value_type                           Color;
-
-  //Colors colors ( size, Color ( 0, 0, 0, 0 ) );
 
   TransferFunctionPtr tf ( new OsgVolume::TransferFunction1D );
-  tf->size ( size );
 
   Children children ( node.find ( "element", true ) );
   for ( Children::iterator iter = children.begin(); iter != children.end(); ++iter )
   {
     unsigned int value ( 0 );
-    Usul::Math::Vec4ui color;
+    Usul::Math::Vec4f color;
 
     XmlTree::Node::Attributes a ( (*iter)->attributes () );
     Usul::Convert::Type < std::string, unsigned int       >::convert ( a["value"], value );
-    Usul::Convert::Type < std::string, Usul::Math::Vec4ui >::convert ( a["color"], color );
+    Usul::Convert::Type < std::string, Usul::Math::Vec4f >::convert ( a["color"], color );
 
-    //colors.at ( value ).set ( color [0], color[1], color[2], color[3] );
-    Color c ( color [0], color[1], color[2], color[3] );
-    tf->value ( value, c );
+    tf->color ( value, Usul::Math::Vec3f ( color[0] / 255.0, color[1] / 255.0, color[2] / 255.0 ) );
+    tf->opacity ( value, color[3] / 255.0 );
   }
 
   tf->textureUnit ( 1 );

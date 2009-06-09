@@ -14,6 +14,7 @@
 #include "OsgVolume/Export.h"
 #include "OsgVolume/TransferFunction.h"
 
+#include "Usul/Math/Vector3.h"
 #include "Usul/Math/Vector4.h"
 
 #include "osg/Image"
@@ -27,49 +28,75 @@ namespace OsgVolume {
 class OSG_VOLUME_EXPORT TransferFunction1D : public OsgVolume::TransferFunction
 {
 public:
-  typedef OsgVolume::TransferFunction BaseClass;
-  typedef Usul::Math::Vec4uc     Color;
-  typedef std::vector < Color >  Colors;
-  typedef Colors::iterator       Iterator;
-  typedef Colors::const_iterator ConstIterator;
-  typedef osg::ref_ptr<TransferFunction1D> RefPtr;
+  typedef Usul::Math::Vec3f RGB;
+  typedef std::map<unsigned int,RGB> ColorMap;
+  typedef std::map<unsigned int,RGB::value_type> OpacityMap;
+  
+  USUL_DECLARE_REF_POINTERS ( TransferFunction1D );
+
+  enum ColorMode
+  {
+    COLOR_MODE_RGB = 0,
+    COLOR_MODE_HSV
+  };
 
   /// Construction.
   TransferFunction1D();
-  TransferFunction1D ( const Colors& colors );
 
   /// Get the number of dimensions for this transfer function.
-  virtual unsigned int   dimensions () const;
-
-  /// Get/Set the size.
-  unsigned int           size () const;
-  void                   size ( unsigned int );
+  virtual unsigned int   dimensions() const;
+  
+  /// Get the texture.
+  virtual osg::Texture*  texture();
 
   /// Get/Set the mininium value.
-  double                 minimium () const;
+  double                 minimium() const;
   void                   minimium ( double );
 
   /// Get/Set the maximium value.
-  double                 maximium () const;
+  double                 maximium() const;
   void                   maximium ( double );
-
-  /// Get/Set the colors.
-  void                   colors ( const Colors& colors );
-  const Colors&          colors ( ) const;
-
-  /// Get/Set the value.
-  void                   value ( unsigned int index, const Color& color );
-  const Color&           value ( unsigned int index ) const;
+  
+  void                   calculateColors();
+  
+  /// Set the color.
+  void                   color ( unsigned int index, const RGB& color );
+  
+  /// Set/get the color map.
+  void                   colorMap ( const ColorMap& colorMap );
+  ColorMap               colorMap() const;
+  
+  /// Set/get the color mode.
+  void                   colorMode ( ColorMode mode );
+  ColorMode              colorMode() const;
+  
+  /// Set the opacity.
+  void                   opacity ( unsigned int index, RGB::value_type opacity );
+  
+  /// Set/get the opacity map.
+  void                   opacityMap ( const OpacityMap& opacityMap );
+  OpacityMap             opacityMap() const;
 
 protected:
-  virtual ~TransferFunction1D ();
+  
+  virtual ~TransferFunction1D();
 
-  void                   _init ( );
+  void                   _init();
+  
+  RGB                    _interpolate ( double u, const RGB& color0, const RGB& color1 ) const;
+  
 private:
-  unsigned int _size;
+  
+  typedef OsgVolume::TransferFunction BaseClass;
+  typedef Usul::Math::Vec4f   Color;
+  typedef std::vector<Color>  Colors;
+  
   double _minimium;
   double _maximium;
   Colors _colors;
+  ColorMap _colorMap;
+  OpacityMap _opacityMap;
+  ColorMode _colorMode;
 };
 
 

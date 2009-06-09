@@ -17,8 +17,8 @@
 #include "OsgTools/Configure/OSG.h"
 
 #include "osg/Image"
+#include "osg/Geode"
 #include "osg/Geometry"
-#include "osg/Billboard"
 #include "osg/Shader"
 #include "osg/Uniform"
 
@@ -39,7 +39,7 @@ public:
   GPURayCasting();
   GPURayCasting( osg::Program * );
   
-  static osg::Program*             createProgram ( bool useTransferFunction = true );
+  static osg::Program*             createProgram();
 
   /// Get/Set the image.
   osg::Image*                      image ();
@@ -61,9 +61,6 @@ public:
   void                             transferFunction ( TransferFunction* tf, TextureUnit unit = 1 );
   TransferFunction*                transferFunction () const;
 
-  /// Set the camera.
-  void                             camera ( const osg::Vec3& camera );
-
 protected:
   virtual ~GPURayCasting();
 
@@ -80,7 +77,6 @@ private:
   unsigned int                  _tfTextureUnit;
   osg::BoundingBox              _bb;
   float                         _samplingRate;
-  osg::Vec3                     _camera;
   osg::ref_ptr < osg::Uniform > _cameraUniform;
   osg::ref_ptr < osg::Uniform > _minUniform;
   osg::ref_ptr < osg::Uniform > _maxUniform;

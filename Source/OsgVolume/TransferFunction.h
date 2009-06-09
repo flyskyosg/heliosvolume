@@ -13,43 +13,45 @@
 
 #include "OsgVolume/Export.h"
 
+#include "Usul/Base/Referenced.h"
+#include "Usul/Pointers/Pointers.h"
+
 #include "osg/Image"
 #include "osg/Texture"
 
 namespace OsgVolume {
 
 
-class OSG_VOLUME_EXPORT TransferFunction : public osg::Referenced
+class OSG_VOLUME_EXPORT TransferFunction : public Usul::Base::Referenced
 {
 public:
-  typedef osg::Referenced BaseClass;
-  typedef osg::ref_ptr<TransferFunction> RefPtr;
+  typedef Usul::Base::Referenced BaseClass;
+
+  USUL_DECLARE_REF_POINTERS ( TransferFunction );
 
   TransferFunction ();
 
   /// Get the image
-  osg::Image*            image ();
-  const osg::Image*      image () const;
+  osg::Image*            image() const;
 
   /// Get the texture.
-  osg::Texture*          texture ();
-  const osg::Texture*    texture () const;
+  virtual osg::Texture*  texture() = 0;
 
   /// Get/Set the texture unit.
   void                   textureUnit ( unsigned int );
-  unsigned int           textureUnit () const;
+  unsigned int           textureUnit() const;
 
   /// Mark as dirty.
-  void                   dirty ();
+  void                   dirty();
 
   /// Get the number of dimensions.
-  virtual unsigned int   dimensions () const = 0;
+  virtual unsigned int   dimensions() const = 0;
 
 protected:
-  virtual ~TransferFunction ();
 
-  osg::ref_ptr < osg::Image > _image;
-  osg::ref_ptr < osg::Texture > _texture;
+  virtual ~TransferFunction();
+
+  osg::ref_ptr<osg::Image> _image;
   unsigned int _textureUnit;
 };
 
