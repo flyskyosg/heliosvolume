@@ -11,10 +11,13 @@
 #include "Flash/FlashModel/Timestep.h"
 #include "Flash/FlashModel/H5File.h"
 #include "Flash/FlashModel/Dataset.h"
+#include "Flash/FlashModel/IFlashDocument.h"
 
 #include "Usul/Functions/Color.h"
 #include "Usul/Math/MinMax.h"
 #include "Usul/Trace/Trace.h"
+#include "Usul/Documents/Document.h"
+#include "Usul/Documents/Manager.h"
 
 #include "OsgTools/Box.h"
 #include "OsgTools/State/StateSet.h"
@@ -372,10 +375,23 @@ osg::Node* Timestep::buildPoints ( const osg::BoundingBox& bb, unsigned int num 
 
 osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double maximum ) const
 {
+  // Query the active document for IVaporIntrusionGUI
+  Flash::IFlashDocument::QueryPtr document ( Usul::Documents::Manager::instance().activeDocument() );
+
+  // Check for a valid document
+  if( false == document.valid() )
+  {
+    std::cout << "Invalid Document in _applyFunction().  Unable to apply a function.  Original value returned." << std::endl;
+  }
+
   // Get the dimensions in each direction.
   const unsigned int x ( _data.shape()[1] );
   const unsigned int y ( _data.shape()[2] );
   const unsigned int z ( _data.shape()[3] );
+
+  // if there is a function to apply to the values apply them to the min/max as well
+  minimum = this->_applyFunction( 0, minimum );
+  maximum = this->_applyFunction( 0, maximum );
 
   // Get the 3D image for the volume.
   osg::ref_ptr<osg::Image> image ( new osg::Image );
@@ -389,7 +405,14 @@ osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double ma
     {
       for ( unsigned int k = 0; k < z; ++k )
       {
-        double value ( Usul::Math::clamp ( _data[num][k][j][i], minimum, maximum ) );
+         // get the value
+        double value ( _data[num][k][j][i] );
+
+        // apply the function
+        value = this->_applyFunction( 0, value );
+        
+        // clamp the value
+        value = Usul::Math::clamp ( value, minimum, maximum );
 #if 1
         value = ( value - minimum ) / ( maximum - minimum );
         const unsigned char pixel ( static_cast < unsigned char > ( value * 255 ) );
@@ -487,4 +510,59 @@ osg::BoundingBox Timestep::boundingBox( unsigned int i ) const
   USUL_TRACE_SCOPE;
   Guard guard ( this->mutex() );
   return _boundingBoxes.at ( i );
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Apply a function to the given value based on the function code.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+double Timestep::_applyFunction( int functionCode, double value ) const
+{
+  USUL_TRACE_SCOPE;
+  Guard guard ( this->mutex() );
+
+  // Query the active document for IVaporIntrusionGUI
+  Flash::IFlashDocument::QueryPtr document ( Usul::Documents::Manager::instance().activeDocument() );
+
+  // Check for a valid document
+  if( false == document.valid() )
+  {
+    std::cout << "Invalid Document in _applyFunction().  Unable to apply a function.  Original value returned." << std::endl;
+    return value;
+  }
+
+  // get the user specified function type
+  int type ( document->functionType() );
+
+  switch ( type )
+  {
+    // Take the absolute value of the input value
+    case Flash::IFlashDocument::ABS_FUNCTION:
+    {
+      value = abs( value );
+      break;
+    }
+    // Apply a log function to the input value
+    case Flash::IFlashDocument::LOG_FUNCTION:
+    {
+      value = log( value );
+      break;
+    }
+    // Apply a scalar multiplier to the input value
+    case Flash::IFlashDocument::SCALAR_MULT_FUNCTION:
+    {
+      double scalar( document->scalar() );
+      value *= scalar;
+      break;
+    }
+    // do nothing to the value
+    default:
+      break;
+  }
+
+  // return the modified value
+  return value;
 }

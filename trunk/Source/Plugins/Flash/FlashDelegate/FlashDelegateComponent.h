@@ -61,6 +61,9 @@ protected:
   FlashDelegateComponent ( const FlashDelegateComponent & );
   FlashDelegateComponent &operator = ( const FlashDelegateComponent & );
 
+  /// Function editor stuff
+  void                        _editFunctions();
+
   /// Use reference counting.
   virtual ~FlashDelegateComponent();
 };

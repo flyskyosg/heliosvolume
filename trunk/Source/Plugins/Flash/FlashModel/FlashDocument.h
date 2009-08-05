@@ -153,6 +153,16 @@ public:
   /// Usul::Interfaces::IUpdateListener
   virtual void                updateNotify ( Usul::Interfaces::IUnknown *caller );
 
+  /// Function Code ///
+
+  /// get/set the function type
+  virtual void                functionType( int type );
+  virtual int                 functionType();
+
+  /// get/set the scalar value
+  virtual void                scalar( double scalar );
+  virtual double              scalar();
+
 protected:
 
   /// Do not copy.
@@ -198,6 +208,10 @@ private:
   Timesteps _timesteps;
   osg::ref_ptr<osg::Program> _program;
   
+   // Function variables
+  double  _scalar;
+  int     _functionType;
+
   SERIALIZE_XML_DEFINE_MAP;
   SERIALIZE_XML_CLASS_NAME ( FlashDocument );
   SERIALIZE_XML_SERIALIZE_FUNCTION;

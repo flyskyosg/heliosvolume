@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="plug: Flash Delegate Qt"
-	ProjectGUID="{56404183-F480-4893-8D47-53CD47BA8418}"
+	ProjectGUID="{3B2D6D97-3A8E-4DB5-AAE9-F72CFFE7CF48}"
 	>
 	<Platforms>
 		<Platform
@@ -240,6 +240,48 @@
 				>
 				<File
 					RelativePath="Export.def"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Qt"
+				>
+				<File
+					RelativePath=".\FunctionEditor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\FunctionEditor.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="Creating ui_FunctionEditor.h..."
+							CommandLine="$(QTDIR)\bin\uic.exe .\FunctionEditor.ui -o .\ui_FunctionEditor.h&#x0D;&#x0A;;$(QTDIR)\bin\moc.exe  &quot;.\FunctionEditor.h&quot; -o &quot;.\GeneratedFiles\moc_FunctionEditor.cpp&#x0D;&#x0A;"
+							AdditionalDependencies="$(QTDIR)\bin\uic.exe;.\FunctionEditor.ui;$(QTDIR)\bin\moc.exe;.\FunctionEditor.h"
+							Outputs=".\ui_FunctionEditor.h;.\GeneratedFiles\moc_FunctionEditor.cpp"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="Creating ui_FunctionEditor.h..."
+							CommandLine="$(QTDIR)\bin\uic.exe .\FunctionEditor.ui -o .\ui_FunctionEditor.h&#x0D;&#x0A;;$(QTDIR)\bin\moc.exe  &quot;.\FunctionEditor.h&quot; -o &quot;.\GeneratedFiles\moc_FunctionEditor.cpp&#x0D;&#x0A;"
+							AdditionalDependencies="$(QTDIR)\bin\uic.exe;.\FunctionEditor.ui;$(QTDIR)\bin\moc.exe;.\FunctionEditor.h"
+							Outputs=".\ui_FunctionEditor.h;.\GeneratedFiles\moc_FunctionEditor.cpp"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="Generated"
+				>
+				<File
+					RelativePath=".\generatedfiles\moc_FunctionEditor.cpp"
 					>
 				</File>
 			</Filter>

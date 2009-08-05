@@ -268,7 +268,7 @@ osg::Node *VolumeDocument::buildScene ( const BaseClass::Options &opt, Unknown *
 {
   this->setStatusBar ( "Building scene..." );
 
-  this->_buildScene ();
+  this->_buildScene();
 
   return _root.get();
 }
