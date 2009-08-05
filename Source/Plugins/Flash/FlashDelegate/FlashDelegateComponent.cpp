@@ -14,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "Flash/FlashDelegate/FlashDelegateComponent.h"
+#include "Flash/FlashDelegate/FunctionEditor.h"
 #include "Flash/FlashModel/IFlashDocument.h"
 
 #include "MenuKit/Menu.h"
@@ -21,6 +22,7 @@
 
 #include "Usul/Components/Factory.h"
 #include "Usul/Documents/Manager.h"
+#include "Usul/Adaptors/MemberFunction.h"
 
 #include "QtGui/QDialog"
 #include "QtGui/QDoubleSpinBox"
@@ -30,6 +32,7 @@
 #include "QtGui/QPushButton"
 
 #include <limits>
+#include <iostream>
 
 USUL_DECLARE_COMPONENT_FACTORY ( FlashDelegateComponent );
 USUL_IMPLEMENT_IUNKNOWN_MEMBERS ( FlashDelegateComponent, FlashDelegateComponent::BaseClass );
@@ -173,5 +176,46 @@ void FlashDelegateComponent::menuAdd ( MenuKit::Menu& menu, Usul::Interfaces::IU
     {
       view->append ( MenuKit::Button::create ( "Set Min/Max", Helper::setMinMax ) );
     }
+
+    // function editor button
+    view->append ( MenuKit::Button::create ( "Value Functions", Usul::Adaptors::memberFunction<void> ( this, &FlashDelegateComponent::_editFunctions ) ) );
+ 
   }
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Handle menu action for function editor
+//
+///////////////////////////////////////////////////////////////////////////////
+
+void FlashDelegateComponent::_editFunctions()
+{
+  // get the document
+  Flash::IFlashDocument::QueryPtr document ( Usul::Documents::Manager::instance().activeDocument() );
+
+  // Check for a valid document
+  if( false == document.valid() )
+  {
+    std::cout << "Error in FlashDelegateComponent::_editFunctions().  Document is invalid!" << std::endl;
+    return;
+  }
+
+  // Make the FunctionEditor dialog
+  FunctionEditor editor;
+
+  // Show the dialog.
+  if ( QDialog::Accepted == editor.exec() )
+  {
+    // update the document
+    int selection ( editor.getSelectedRadio() );
+
+    // update the document
+    document->functionType( selection );
+  }
+
+  
+
+}
+

@@ -75,6 +75,8 @@ FlashDocument::FlashDocument() :
   _transferFunctions(),
   _timesteps(),
   _program ( Volume::createProgram() ),
+  _scalar( 1 ),
+  _functionType( -1 ),
   SERIALIZE_XML_INITIALIZER_LIST
 {
   this->_addMember ( "filenames", _filenames );
@@ -650,7 +652,7 @@ void FlashDocument::_buildDefaultTransferFunctions()
   const unsigned int size ( 256 );  
   TransferFunction1D::RefPtr transferFunction ( new TransferFunction1D );
   typedef TransferFunction1D::RGB RGB;
-
+#if 0
   for ( unsigned int i = 0; i < size; ++i )
   {
     float u ( static_cast < float > ( i ) / ( size - 1 ) );
@@ -669,7 +671,33 @@ void FlashDocument::_buildDefaultTransferFunctions()
     
     transferFunction->opacity ( i, opacity / 255.0 );
   }
-  
+#else
+ for ( unsigned int i = 0; i < size; ++i )
+ {
+    float u ( static_cast < float > ( i ) / ( size - 1 ) );
+    const unsigned char alpha ( 50 );
+    
+    float r ( 0.0 ), g ( 0.0 ), b ( 0.0 );
+    Usul::Functions::Color::hsvToRgb ( r, g, b, 300 - static_cast<float> ( u * 300.0f ), 1.0f, 1.0f );
+    
+    RGB rgb ( r, g, b );
+    transferFunction->color ( i, rgb );
+
+    RGB::value_type opacity ( u < 0.5 ? 0 : u * alpha);
+    
+    if ( ( g > 0.75 || b > 0.5 ) && u >= 0.5)
+      opacity = 1;
+    
+    if( i > ( size * .45 ) && i < ( size * .90 ) )
+    {
+      transferFunction->opacity ( i, opacity / 255.0 );
+    }
+    else
+    {
+      transferFunction->opacity ( i, 0.0 );
+    }
+ }
+#endif
   _transferFunctions.push_back ( transferFunction );
 }
 
@@ -1049,4 +1077,72 @@ double FlashDocument::maximumGet() const
   USUL_TRACE_SCOPE;
   Guard guard ( this );
   return _maximum;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+/// set the function type
+//
+///////////////////////////////////////////////////////////////////////////////
+
+void FlashDocument::functionType( int type )
+{
+  USUL_TRACE_SCOPE;
+  Guard guard ( this->mutex() );
+
+  _functionType = type;
+
+  // the function has changed, dirty the document
+  this->dirty( true );
+
+  // Request a redraw.
+  this->requestRedraw();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+/// get the function type
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+int FlashDocument::functionType()
+{
+  USUL_TRACE_SCOPE;
+  Guard guard ( this->mutex() );
+
+  return _functionType;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// set the scalar value
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+void FlashDocument::scalar( double scalar )
+{
+  USUL_TRACE_SCOPE;
+  Guard guard ( this->mutex() );
+
+  _scalar = scalar;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// get the scalar value
+//
+///////////////////////////////////////////////////////////////////////////////
+
+double FlashDocument::scalar()
+{
+  USUL_TRACE_SCOPE;
+  Guard guard ( this->mutex() );
+
+  return _scalar;
 }

@@ -65,6 +65,9 @@ public:
 protected:
   
   virtual ~Timestep();
+
+  // apply a function to the given value based on the function code
+  double    _applyFunction( int functionCode, double value ) const;
   
 private:
   

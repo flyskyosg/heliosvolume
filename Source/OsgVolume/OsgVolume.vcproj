@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="lib: OsgVolume"
-	ProjectGUID="{AF80D329-B72A-4964-9D76-9F16B5C0A9D0}"
+	ProjectGUID="{B915409A-1E9B-41F2-8209-945B47B28B62}"
 	RootNamespace="lib: OsgVolume"
 	>
 	<Platforms>

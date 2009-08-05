@@ -33,6 +33,23 @@ struct IFlashDocument : public Usul::Interfaces::IUnknown
   virtual void                maximumSet ( double ) = 0;
   virtual double              maximumGet() const = 0;
   
+  /// Function code ///
+  /// get/set the function type
+  virtual void                functionType( int type ) = 0;
+  virtual int                 functionType() = 0;
+
+  /// get/set the scalar value
+  virtual void                scalar( double scalar ) = 0;
+  virtual double              scalar() = 0;
+
+  /// Function editor stuff
+  enum
+  {
+    LOG_FUNCTION,
+    ABS_FUNCTION,
+    SCALAR_MULT_FUNCTION
+  };
+
 }; // struct IFlashDocument
 
 
