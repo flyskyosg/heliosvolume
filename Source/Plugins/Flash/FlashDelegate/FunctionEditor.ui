@@ -1,0 +1,142 @@
+<ui version="4.0" >
+ <class>FunctionEditor</class>
+ <widget class="QDialog" name="FunctionEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>502</width>
+    <height>280</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Functions</string>
+  </property>
+  <widget class="QDialogButtonBox" name="okCancelButtons" >
+   <property name="geometry" >
+    <rect>
+     <x>170</x>
+     <y>230</y>
+     <width>160</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons" >
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>448</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>The following fucntion selected will be applied to the values at each grid point.</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="functionBox" >
+   <property name="geometry" >
+    <rect>
+     <x>80</x>
+     <y>60</y>
+     <width>321</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string/>
+   </property>
+   <widget class="QRadioButton" name="absRadio" >
+    <property name="geometry" >
+     <rect>
+      <x>50</x>
+      <y>30</y>
+      <width>101</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Absolute Value</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="logRadio" >
+    <property name="geometry" >
+     <rect>
+      <x>50</x>
+      <y>60</y>
+      <width>90</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Log</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="_scalar" >
+    <property name="geometry" >
+     <rect>
+      <x>160</x>
+      <y>90</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="scalarRadio" >
+    <property name="geometry" >
+     <rect>
+      <x>50</x>
+      <y>90</y>
+      <width>101</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Scalar Multiply</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>okCancelButtons</sender>
+   <signal>accepted()</signal>
+   <receiver>FunctionEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>okCancelButtons</sender>
+   <signal>rejected()</signal>
+   <receiver>FunctionEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

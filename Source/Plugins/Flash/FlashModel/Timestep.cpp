@@ -243,7 +243,7 @@ void Timestep::loadData ( const std::string& name )
   const unsigned int z ( data->size ( 3 ) );
   
   // Buffer for density.
-  _data.resize ( boost::extents [data->size ( 0 )][x][y][z] );
+  _data.resize ( boost::extents [data->size ( 0 )][z][y][x] );
   
   // Fill the buffer.
   data->read ( H5T_NATIVE_DOUBLE, _data.origin() );
@@ -324,6 +324,7 @@ osg::Node* Timestep::buildPoints ( const osg::BoundingBox& bb, unsigned int num 
     {
       for ( unsigned int k = 0; k < z; ++k )
       {
+        //NOTES: Should be ijk order or will cause a crash.  Dimensions won't match on some files
         const double value ( _data[num][k][j][i] );
         
         float r ( 0.0 ), g ( 0.0 ), b ( 0.0 );
@@ -405,7 +406,10 @@ osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double ma
     {
       for ( unsigned int k = 0; k < z; ++k )
       {
-         // get the value
+        //NOTES: Was [k][j][i] should be [i][j][k] or will cause a crash.  
+        //       Dimensions won't match on some files.
+
+        // get the value
         double value ( _data[num][k][j][i] );
 
         // apply the function
