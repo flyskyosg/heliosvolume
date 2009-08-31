@@ -75,6 +75,7 @@ FlashDocument::FlashDocument() :
   _currentTransferFunction ( 0 ),
   _transferFunctions(),
   _timesteps(),
+  _vTimeSteps(),
   _program ( Volume::createProgram() ),
   _scalar( 1 ),
   _functionType( IFlashDocument::NO_FUNCTION ),
@@ -763,8 +764,8 @@ Timestep::RefPtr FlashDocument::loadTimestep ( unsigned int i, bool cache )
   // Make the timestep.
   Timestep::RefPtr timestep ( new Timestep ( filename ) );
   timestep->init();
-  timestep->loadData ( this->dataSet() );
-  
+  timestep->loadData ( this->dataSet(), this->vDataSet() );
+
   // Add the timestep.
   if ( true == cache )
   {
@@ -933,6 +934,9 @@ void FlashDocument::menuAdd ( MenuKit::Menu& menu, Usul::Interfaces::IUnknown * 
     functions->append ( MenuKit::RadioButton::create ( "Log", 
       boost::bind ( &FlashDocument::functionType, this, IFlashDocument::LOG_FUNCTION ), boost::bind ( &FlashDocument::isFunctionType, this, IFlashDocument::LOG_FUNCTION ) ) );
  
+	functions->append ( MenuKit::RadioButton::create ( "Multiply", 
+      boost::bind ( &FlashDocument::functionType, this, IFlashDocument::SCALAR_MULT_FUNCTION ), boost::bind ( &FlashDocument::isFunctionType, this, IFlashDocument::SCALAR_MULT_FUNCTION ) ) );
+ 
   }
 }
 
@@ -971,6 +975,38 @@ std::string FlashDocument::dataSet() const
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+//  Set the dataset name.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+void FlashDocument::vDataSet ( const std::string& s )
+{
+  USUL_TRACE_SCOPE;
+  Guard guard ( this->mutex() );
+  if ( s != _valueMultiplier )
+  {
+    _valueMultiplier = s;
+    this->clearCache();
+  }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Get the dataset name.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string FlashDocument::vDataSet() const
+{
+  USUL_TRACE_SCOPE;
+  Guard guard ( this->mutex() );
+  return _valueMultiplier;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
 //  Return whether or not to sort the files after the user has selected them 
 //  with the file dialog, but before they are sent to the document's read().
 //
@@ -993,6 +1029,7 @@ void FlashDocument::clearCache()
 {
   USUL_TRACE_SCOPE;
   _timesteps.clear();
+  //_vTimeSteps.clear();
 }
 
 
