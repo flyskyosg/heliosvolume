@@ -53,7 +53,7 @@ public:
   int level ( unsigned int i ) const;
   
   /// Load the data with the given name.
-  void loadData ( const std::string& name );
+  void loadData ( const std::string& name, const std::string& valueName );
   
   /// Get the min and max values.
   double minimum() const;
@@ -67,7 +67,7 @@ protected:
   virtual ~Timestep();
 
   // apply a function to the given value based on the function code
-  double    _applyFunction( int functionCode, double value ) const;
+  double    _applyFunction( int functionCode, double value, double value2 ) const;
   
 private:
   
@@ -90,6 +90,10 @@ private:
   double _minimum;
   double _maximum;
   HierarchyArray _hierarchy;
+
+  DataArray _secondValue;
+  double _vMinimum;
+  double _vMaximum;
 };
 
 #endif // __FLASH_MODEL_TIMESTEP_H__

@@ -94,6 +94,10 @@ public:
   /// Set/get the dataset name.
   void                        dataSet ( const std::string& );
   std::string                 dataSet() const;
+
+  /// Set/get the value multiply dataset name.
+  void                        vDataSet ( const std::string& );
+  std::string                 vDataSet() const;
   
   // Deserialize.
   virtual void                deserialize ( const XmlTree::Node &node );
@@ -210,6 +214,10 @@ private:
   unsigned int _currentTransferFunction;
   TransferFunctions _transferFunctions;
   Timesteps _timesteps;
+
+  // timesteps to contain the second value to multiply to the initial
+  Timesteps _vTimeSteps;
+
   osg::ref_ptr<osg::Program> _program;
   
    // Function variables

@@ -41,7 +41,10 @@ Timestep::Timestep( const std::string& filename ) : BaseClass(),
   _data (),
   _minimum ( 0.0 ),
   _maximum ( 0.0 ),
-  _hierarchy()
+  _hierarchy(),
+  _secondValue(),
+  _vMinimum ( 1.0 ),
+  _vMaximum ( 1.0 )
 {
 }
 
@@ -219,7 +222,7 @@ void Timestep::_initHierarchy ( H5File& file )
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-void Timestep::loadData ( const std::string& name )
+void Timestep::loadData ( const std::string& name, const std::string& valueName )
 {
   Guard guard ( this->mutex() );
   
@@ -231,7 +234,7 @@ void Timestep::loadData ( const std::string& name )
     throw std::runtime_error ( "Error 1747059583: Could not open file: " + _filename );
   
   // Read the density.
-  Dataset::RefPtr data ( file.openDataset ( name ) );
+  Dataset::RefPtr data ( file.openDataset ( name ) );  
   
   // Make sure it's valid.
   if ( false == data.valid() || false == data->isOpen() )
@@ -251,6 +254,37 @@ void Timestep::loadData ( const std::string& name )
   // Get min and max from the data set.
   _minimum = data->attribute ( "minimum" );
   _maximum = data->attribute ( "maximum" );
+
+  //----------------------------------------------------------------------------
+  // Second value code
+  //----------------------------------------------------------------------------
+
+  // Make sure there is a second value to read
+  if( valueName != "" )
+  {
+	  // Read the density.
+	  Dataset::RefPtr vData ( file.openDataset ( valueName ) );  
+	  
+	  // Make sure it's valid.
+	  if ( false == vData.valid() || false == vData->isOpen() )
+		throw std::runtime_error ( "Error 1444387917: Could not open second data set." );
+	  	  
+	  // Buffer for density.
+	  _secondValue.resize ( boost::extents [vData->size ( 0 )][z][y][x] );
+
+	  // Make sure it's valid.
+	  if ( _secondValue.size() != _data.size() )
+		throw std::runtime_error ( "Error 2659461171: Size mismatch between first and second datasets." );
+	  
+	  // Fill the buffer.
+	  vData->read ( H5T_NATIVE_DOUBLE, _secondValue.origin() );
+	  
+	  // Get min and max from the data set.
+	  _vMinimum = vData->attribute ( "minimum" );
+	  _vMaximum = vData->attribute ( "maximum" );
+  }
+
+
 }
 
 
@@ -391,8 +425,8 @@ osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double ma
   const unsigned int z ( _data.shape()[3] );
 
   // if there is a function to apply to the values apply them to the min/max as well
-  minimum = this->_applyFunction( 0, minimum );
-  maximum = this->_applyFunction( 0, maximum );
+  minimum = this->_applyFunction( 0, minimum, _vMinimum );
+  maximum = this->_applyFunction( 0, maximum, _vMaximum );
 
   // Get the 3D image for the volume.
   osg::ref_ptr<osg::Image> image ( new osg::Image );
@@ -410,10 +444,15 @@ osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double ma
         //       Dimensions won't match on some files.
 
         // get the value
-        double value ( _data[num][k][j][i] );
+        double value ( _data[num][i][j][k] );
+		
+		// get the second value
+		double value2 ( 1.0 );
+		if( _secondValue.size() == _data.size() )
+         ( value2 = _secondValue[num][i][j][k] );
 
         // apply the function
-        value = this->_applyFunction( 0, value );
+        value = this->_applyFunction( 0, value, value2 );
         
         // clamp the value
         value = Usul::Math::clamp ( value, minimum, maximum );
@@ -523,7 +562,7 @@ osg::BoundingBox Timestep::boundingBox( unsigned int i ) const
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-double Timestep::_applyFunction( int functionCode, double value ) const
+double Timestep::_applyFunction( int functionCode, double value, double value2 ) const
 {
   USUL_TRACE_SCOPE;
   Guard guard ( this->mutex() );
@@ -558,8 +597,7 @@ double Timestep::_applyFunction( int functionCode, double value ) const
     // Apply a scalar multiplier to the input value
     case Flash::IFlashDocument::SCALAR_MULT_FUNCTION:
     {
-      double scalar( document->scalar() );
-      value *= scalar;
+      value *= value2;
       break;
     }
     // do nothing to the value
