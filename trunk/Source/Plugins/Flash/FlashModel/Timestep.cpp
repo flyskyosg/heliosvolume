@@ -419,14 +419,17 @@ osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double ma
     std::cout << "Invalid Document in _applyFunction().  Unable to apply a function.  Original value returned." << std::endl;
   }
 
+  // get the user specified function type
+  int type ( document->functionType() );
+
   // Get the dimensions in each direction.
   const unsigned int x ( _data.shape()[1] );
   const unsigned int y ( _data.shape()[2] );
   const unsigned int z ( _data.shape()[3] );
 
   // if there is a function to apply to the values apply them to the min/max as well
-  minimum = this->_applyFunction( 0, minimum, _vMinimum );
-  maximum = this->_applyFunction( 0, maximum, _vMaximum );
+  minimum = this->_applyFunction( type, _minimum, _vMinimum );
+  maximum = this->_applyFunction( type, _maximum, _vMaximum );
 
   // Get the 3D image for the volume.
   osg::ref_ptr<osg::Image> image ( new osg::Image );
@@ -452,7 +455,7 @@ osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double ma
          ( value2 = _secondValue[num][i][j][k] );
 
         // apply the function
-        value = this->_applyFunction( 0, value, value2 );
+        value = this->_applyFunction( type, value, value2 );
         
         // clamp the value
         value = Usul::Math::clamp ( value, minimum, maximum );
@@ -567,20 +570,7 @@ double Timestep::_applyFunction( int functionCode, double value, double value2 )
   USUL_TRACE_SCOPE;
   Guard guard ( this->mutex() );
 
-  // Query the active document for IVaporIntrusionGUI
-  Flash::IFlashDocument::QueryPtr document ( Usul::Documents::Manager::instance().activeDocument() );
-
-  // Check for a valid document
-  if( false == document.valid() )
-  {
-    std::cout << "Invalid Document in _applyFunction().  Unable to apply a function.  Original value returned." << std::endl;
-    return value;
-  }
-
-  // get the user specified function type
-  int type ( document->functionType() );
-
-  switch ( type )
+  switch ( functionCode )
   {
     // Take the absolute value of the input value
     case Flash::IFlashDocument::ABS_FUNCTION:
