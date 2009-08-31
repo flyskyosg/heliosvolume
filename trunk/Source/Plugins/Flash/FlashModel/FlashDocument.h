@@ -158,10 +158,13 @@ public:
   /// get/set the function type
   virtual void                functionType( int type );
   virtual int                 functionType();
+  bool                        isFunctionType( int type );
 
   /// get/set the scalar value
   virtual void                scalar( double scalar );
   virtual double              scalar();
+
+
 
 protected:
 
@@ -195,6 +198,7 @@ private:
   double _scale;
   unsigned int _currentTimestep;
   std::string _dataSet;
+  std::string _valueMultiplier;
   double _minimum;
   double _maximum;
   osg::ref_ptr < osg::Group > _root;
