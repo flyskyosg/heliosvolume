@@ -416,7 +416,7 @@ osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double ma
   // Check for a valid document
   if( false == document.valid() )
   {
-    std::cout << "Invalid Document in _applyFunction().  Unable to apply a function.  Original value returned." << std::endl;
+    std::cout << "Invalid Document in buildVolume().  Unable to apply a function.  Original value returned." << std::endl;
   }
 
   // get the user specified function type
