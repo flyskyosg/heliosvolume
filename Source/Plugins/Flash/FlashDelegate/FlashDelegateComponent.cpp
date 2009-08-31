@@ -178,7 +178,7 @@ void FlashDelegateComponent::menuAdd ( MenuKit::Menu& menu, Usul::Interfaces::IU
     }
 
     // function editor button
-    view->append ( MenuKit::Button::create ( "Value Functions", Usul::Adaptors::memberFunction<void> ( this, &FlashDelegateComponent::_editFunctions ) ) );
+    // view->append ( MenuKit::Button::create ( "Value Functions", Usul::Adaptors::memberFunction<void> ( this, &FlashDelegateComponent::_editFunctions ) ) );
  
   }
 }

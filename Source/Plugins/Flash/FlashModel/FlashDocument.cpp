@@ -64,6 +64,7 @@ FlashDocument::FlashDocument() :
   _scale ( 1.0 / 1e+20f ),
   _currentTimestep ( 0 ),
   _dataSet ( "temp" ),
+  _valueMultiplier( "" ),
   _minimum ( 0.0 ),
   _maximum ( 0.0 ),
   _root ( new osg::Group ),
@@ -76,12 +77,13 @@ FlashDocument::FlashDocument() :
   _timesteps(),
   _program ( Volume::createProgram() ),
   _scalar( 1 ),
-  _functionType( -1 ),
+  _functionType( IFlashDocument::NO_FUNCTION ),
   SERIALIZE_XML_INITIALIZER_LIST
 {
   this->_addMember ( "filenames", _filenames );
   this->_addMember ( "current_time_step", _currentTimestep );
   this->_addMember ( "data_set", _dataSet );
+  this->_addMember ( "value_multiplier", _valueMultiplier );
   this->_addMember ( "minimum", _minimum );
   this->_addMember ( "maximum", _maximum );
   this->_addMember ( "transfer_functions", _transferFunctions );
@@ -921,6 +923,17 @@ void FlashDocument::menuAdd ( MenuKit::Menu& menu, Usul::Interfaces::IUnknown * 
         boost::bind ( &FlashDocument::transferFunction, this, num ), boost::bind ( &FlashDocument::isTransferFunction, this, num ) ) );
     }
   }
+
+  MenuKit::Menu::RefPtr functions ( menu.find ( "&Functions", true ) );
+  if ( functions.valid() )
+  {
+    functions->append ( MenuKit::RadioButton::create ( "None", 
+      boost::bind ( &FlashDocument::functionType, this, IFlashDocument::NO_FUNCTION ), boost::bind ( &FlashDocument::isFunctionType, this, IFlashDocument::NO_FUNCTION ) ) );
+ 
+    functions->append ( MenuKit::RadioButton::create ( "Log", 
+      boost::bind ( &FlashDocument::functionType, this, IFlashDocument::LOG_FUNCTION ), boost::bind ( &FlashDocument::isFunctionType, this, IFlashDocument::LOG_FUNCTION ) ) );
+ 
+  }
 }
 
 
@@ -1009,6 +1022,20 @@ bool FlashDocument::isTransferFunction ( unsigned int i ) const
   USUL_TRACE_SCOPE;
   Guard guard ( this );
   return i == _currentTransferFunction;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Is this the current  transfer function?
+//
+///////////////////////////////////////////////////////////////////////////////
+
+bool FlashDocument::isFunctionType ( int i )
+{
+  USUL_TRACE_SCOPE;
+  Guard guard ( this );
+  return i == this->functionType();
 }
 
 

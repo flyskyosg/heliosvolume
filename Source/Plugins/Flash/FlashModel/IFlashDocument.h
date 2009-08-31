@@ -47,7 +47,8 @@ struct IFlashDocument : public Usul::Interfaces::IUnknown
   {
     LOG_FUNCTION,
     ABS_FUNCTION,
-    SCALAR_MULT_FUNCTION
+    SCALAR_MULT_FUNCTION,
+    NO_FUNCTION
   };
 
 }; // struct IFlashDocument
