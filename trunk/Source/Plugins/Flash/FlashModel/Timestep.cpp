@@ -8,10 +8,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Flash/FlashModel/Timestep.h"
-#include "Flash/FlashModel/H5File.h"
-#include "Flash/FlashModel/Dataset.h"
-#include "Flash/FlashModel/IFlashDocument.h"
+#include "Timestep.h"
+#include "H5File.h"
+#include "Dataset.h"
+#include "IFlashDocument.h"
 
 #include "Usul/Functions/Color.h"
 #include "Usul/Math/MinMax.h"
@@ -246,7 +246,7 @@ void Timestep::loadData ( const std::string& name, const std::string& valueName 
   const unsigned int z ( data->size ( 3 ) );
   
   // Buffer for density.
-  _data.resize ( boost::extents [data->size ( 0 )][z][y][x] );
+  _data.resize ( boost::extents [data->size ( 0 )][x][y][z] );
   
   // Fill the buffer.
   data->read ( H5T_NATIVE_DOUBLE, _data.origin() );
@@ -270,7 +270,7 @@ void Timestep::loadData ( const std::string& name, const std::string& valueName 
 		throw std::runtime_error ( "Error 1444387917: Could not open second data set." );
 	  	  
 	  // Buffer for density.
-	  _secondValue.resize ( boost::extents [vData->size ( 0 )][z][y][x] );
+	  _secondValue.resize ( boost::extents [vData->size ( 0 )][x][y][z] );
 
 	  // Make sure it's valid.
 	  if ( _secondValue.size() != _data.size() )
@@ -326,9 +326,9 @@ osg::Node* Timestep::buildPoints ( const osg::BoundingBox& bb, unsigned int num 
   Guard guard ( this->mutex() );
   
   // Get the dimensions in each direction.
-  const unsigned int x ( _data.shape()[1] );
+  const unsigned int x ( _data.shape()[3] );
   const unsigned int y ( _data.shape()[2] );
-  const unsigned int z ( _data.shape()[3] );
+  const unsigned int z ( _data.shape()[1] );
   
   // Get min and max from the data set.
   const double minimum ( _minimum );
@@ -408,28 +408,35 @@ osg::Node* Timestep::buildPoints ( const osg::BoundingBox& bb, unsigned int num 
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double maximum ) const
+osg::Image* Timestep::buildVolume ( unsigned int num, double minimum, double maximum ) const
 {
   // Query the active document for IVaporIntrusionGUI
   Flash::IFlashDocument::QueryPtr document ( Usul::Documents::Manager::instance().activeDocument() );
 
+  int type ( 3 );
   // Check for a valid document
-  if( false == document.valid() )
+  if( true == document.valid() )
   {
-    std::cout << "Invalid Document in buildVolume().  Unable to apply a function.  Original value returned." << std::endl;
+	//throw std::runtime_error ( "Error 1932718685: Invalid Document in buildVolume().  Unable to apply a function." );
+	  
+	type = document->functionType();
   }
 
   // get the user specified function type
-  int type ( document->functionType() );
+  // int type ( document->functionType() );
 
   // Get the dimensions in each direction.
-  const unsigned int x ( _data.shape()[1] );
+  const unsigned int x ( _data.shape()[3] );
   const unsigned int y ( _data.shape()[2] );
-  const unsigned int z ( _data.shape()[3] );
+  const unsigned int z ( _data.shape()[1] );
 
   // if there is a function to apply to the values apply them to the min/max as well
   minimum = this->_applyFunction( type, _minimum, _vMinimum );
   maximum = this->_applyFunction( type, _maximum, _vMaximum );
+	
+  // TODO: remove before final build
+  // some debug statements
+  //std::cout << "Min/MAX: { " << minimum << " | " << maximum << " }" << std::endl;
 
   // Get the 3D image for the volume.
   osg::ref_ptr<osg::Image> image ( new osg::Image );
@@ -447,12 +454,12 @@ osg::Image* Timestep:: buildVolume ( unsigned int num, double minimum, double ma
         //       Dimensions won't match on some files.
 
         // get the value
-        double value ( _data[num][i][j][k] );
+        double value ( _data[num][k][j][i] );
 		
 		// get the second value
 		double value2 ( 1.0 );
 		if( _secondValue.size() == _data.size() )
-         ( value2 = _secondValue[num][i][j][k] );
+         ( value2 = _secondValue[num][k][j][i] );
 
         // apply the function
         value = this->_applyFunction( type, value, value2 );

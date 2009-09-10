@@ -7,16 +7,6 @@
 
 project (FlashModel)
 
-INCLUDE ( Cadkit.plugin )
-
-# ------------ Find OpenSceneGraph Libraries ----------------------
-INCLUDE ( FindOSG )
-
-IF(WIN32)
-	ADD_DEFINITIONS ("-D_HDF5USEDLL_")
-ENDIF(WIN32)
-
-
 #########################################################
 #
 #  Set Include Folders.
@@ -30,6 +20,16 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR}
 					 ${OSG_INC_DIR} 
 					 ${HDF_INCLUDE_DIR} )
 
+INCLUDE ( Cadkit.plugin )
+
+# ------------ Find OpenSceneGraph Libraries ----------------------
+INCLUDE ( FindOSG )
+
+IF(WIN32)
+	ADD_DEFINITIONS ("-D_HDF5USEDLL_")
+ENDIF(WIN32)
+
+
 # Set the sources to compile.
 set (SOURCES
 ./Dataset.cpp
@@ -42,7 +42,7 @@ set (SOURCES
 # Set variables that the CADKIT_ADD_PLUGIN macro uses.
 SET ( PLUGIN_NAME "FlashModel" )
 SET ( COMPILE_GUARD "_COMPILING_FLASH_MODEL" )
-SET ( CADKIT_LIBRARIES Usul OsgTools XmlTree SerializeXML MenuKit )
+SET ( CADKIT_LIBRARIES Usul OsgTools XmlTree SerializeXML MenuKit OsgVolume )
 SET ( OTHER_LIBRARIES ${OPENTHREADS_LIB}
 					  ${OSG_LIB}
 					  ${OSG_UTIL_LIB}

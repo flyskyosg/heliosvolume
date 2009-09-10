@@ -14,7 +14,7 @@
 #include "Usul/Base/Referenced.h"
 #include "Usul/Pointers/Pointers.h"
 
-#include "hdf5.h"
+#include "/usr/local/include/hdf5.h"
 
 //#define USE_HDF5_LITE 1
 

@@ -14,8 +14,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Helios/Qt/Plugins/TransferFunction/TransferFunctionComponent.h"
-#include "Helios/Qt/Plugins/TransferFunction/TransferFunctionWidget.h"
+#include "TransferFunctionComponent.h"
+#include "TransferFunctionWidget.h"
 
 #include "OsgVolume/ITransferFunction1DList.h"
 
