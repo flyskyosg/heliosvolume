@@ -8,8 +8,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Flash/FlashModel/FlashDocument.h"
-#include "Flash/FlashModel/TypeWrapper.h"
+#include "FlashDocument.h"
+#include "TypeWrapper.h"
 
 #include "Usul/Adaptors/Bind.h"
 #include "Usul/Adaptors/MemberFunction.h"
@@ -436,6 +436,7 @@ void FlashDocument::_buildScene ( Usul::Interfaces::IUnknown* caller )
       }
       
       _root->addChild ( this->_buildLegend ( useMin, useMax, tf.get(), caller ) );
+	  //_root->addChild ( this->_buildLegend ( minimum, maximum, tf.get(), caller ) );
     }
   }
   
@@ -669,7 +670,7 @@ void FlashDocument::_buildDefaultTransferFunctions()
 
     RGB::value_type opacity ( u < 0.5 ? 0 : u * alpha);
     
-    if ( ( g > 0.75 || b > 0.5 ) && u >= 0.5)
+    //if ( ( g > 0.75 || b > 0.5 ) && u >= 0.5)
       opacity = 1;
     
     transferFunction->opacity ( i, opacity / 255.0 );
@@ -900,6 +901,11 @@ void FlashDocument::menuAdd ( MenuKit::Menu& menu, Usul::Interfaces::IUnknown * 
   
   namespace UA = Usul::Adaptors;
   namespace UC = Usul::Commands;
+
+#ifdef _APPLE
+	
+#else
+#endif
   
   MenuKit::Menu::RefPtr view ( menu.find ( "&View", true ) );
   
@@ -928,14 +934,19 @@ void FlashDocument::menuAdd ( MenuKit::Menu& menu, Usul::Interfaces::IUnknown * 
   MenuKit::Menu::RefPtr functions ( menu.find ( "&Functions", true ) );
   if ( functions.valid() )
   {
-    functions->append ( MenuKit::RadioButton::create ( "None", 
-      boost::bind ( &FlashDocument::functionType, this, IFlashDocument::NO_FUNCTION ), boost::bind ( &FlashDocument::isFunctionType, this, IFlashDocument::NO_FUNCTION ) ) );
+	int none ( IFlashDocument::NO_FUNCTION );
+	functions->append ( MenuKit::RadioButton::create ( "None", 
+      boost::bind ( &FlashDocument::functionType, this, none ), boost::bind ( &FlashDocument::isFunctionType, this, none ) ) );
+	  
+	  int log_func ( IFlashDocument::LOG_FUNCTION );
  
     functions->append ( MenuKit::RadioButton::create ( "Log", 
-      boost::bind ( &FlashDocument::functionType, this, IFlashDocument::LOG_FUNCTION ), boost::bind ( &FlashDocument::isFunctionType, this, IFlashDocument::LOG_FUNCTION ) ) );
+      boost::bind ( &FlashDocument::functionType, this, log_func ), boost::bind ( &FlashDocument::isFunctionType, this, log_func ) ) );
+	  
+	  int mult_func ( IFlashDocument::SCALAR_MULT_FUNCTION );
  
 	functions->append ( MenuKit::RadioButton::create ( "Multiply", 
-      boost::bind ( &FlashDocument::functionType, this, IFlashDocument::SCALAR_MULT_FUNCTION ), boost::bind ( &FlashDocument::isFunctionType, this, IFlashDocument::SCALAR_MULT_FUNCTION ) ) );
+      boost::bind ( &FlashDocument::functionType, this, mult_func ), boost::bind ( &FlashDocument::isFunctionType, this, mult_func ) ) );
  
   }
 }

@@ -17,8 +17,8 @@
 #ifndef _FLASH_MODEL_DOCUMENT_H_
 #define _FLASH_MODEL_DOCUMENT_H_
 
-#include "Flash/FlashModel/Timestep.h"
-#include "Flash/FlashModel/IFlashDocument.h"
+#include "Timestep.h"
+#include "IFlashDocument.h"
 
 #include "Usul/Documents/Document.h"
 #include "Usul/Jobs/Job.h"
