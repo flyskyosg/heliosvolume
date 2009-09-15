@@ -413,7 +413,7 @@ osg::Image* Timestep::buildVolume ( unsigned int num, double minimum, double max
   // Query the active document for IVaporIntrusionGUI
   Flash::IFlashDocument::QueryPtr document ( Usul::Documents::Manager::instance().activeDocument() );
 
-  int type ( 3 );
+	int type ( Flash::IFlashDocument::NO_FUNCTION );
   // Check for a valid document
   if( true == document.valid() )
   {
@@ -431,12 +431,20 @@ osg::Image* Timestep::buildVolume ( unsigned int num, double minimum, double max
   const unsigned int z ( _data.shape()[1] );
 
   // if there is a function to apply to the values apply them to the min/max as well
-  minimum = this->_applyFunction( type, _minimum, _vMinimum );
-  maximum = this->_applyFunction( type, _maximum, _vMaximum );
+  if( minimum == maximum )
+  {
+	  minimum = this->_applyFunction( type, _minimum, _vMinimum );
+	  maximum = this->_applyFunction( type, _maximum, _vMaximum );
+  }
+  else
+  {
+	  minimum = this->_applyFunction( type, minimum, _vMinimum );
+	  maximum = this->_applyFunction( type, maximum, _vMaximum );		
+  }
 	
   // TODO: remove before final build
   // some debug statements
-  //std::cout << "Min/MAX: { " << minimum << " | " << maximum << " }" << std::endl;
+  // std::cout << "Min/MAX: { " << minimum << " | " << maximum << " }" << std::endl;
 
   // Get the 3D image for the volume.
   osg::ref_ptr<osg::Image> image ( new osg::Image );
@@ -450,9 +458,6 @@ osg::Image* Timestep::buildVolume ( unsigned int num, double minimum, double max
     {
       for ( unsigned int k = 0; k < z; ++k )
       {
-        //NOTES: Was [k][j][i] should be [i][j][k] or will cause a crash.  
-        //       Dimensions won't match on some files.
-
         // get the value
         double value ( _data[num][k][j][i] );
 		
@@ -597,6 +602,13 @@ double Timestep::_applyFunction( int functionCode, double value, double value2 )
       value *= value2;
       break;
     }
+		  // Apply a scalar multiplier to the input value
+	case Flash::IFlashDocument::MULT_LOG_FUNCTION:
+	{
+	  value *= value2;
+	  value = log( value );
+	  break;
+	}
     // do nothing to the value
     default:
       break;
