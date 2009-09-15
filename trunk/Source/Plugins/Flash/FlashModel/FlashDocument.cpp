@@ -947,7 +947,12 @@ void FlashDocument::menuAdd ( MenuKit::Menu& menu, Usul::Interfaces::IUnknown * 
  
 	functions->append ( MenuKit::RadioButton::create ( "Multiply", 
       boost::bind ( &FlashDocument::functionType, this, mult_func ), boost::bind ( &FlashDocument::isFunctionType, this, mult_func ) ) );
- 
+
+	  int mult_log_func ( IFlashDocument::MULT_LOG_FUNCTION );
+	  
+	functions->append ( MenuKit::RadioButton::create ( "Multiply and Log", 
+	  boost::bind ( &FlashDocument::functionType, this, mult_log_func ), boost::bind ( &FlashDocument::isFunctionType, this, mult_log_func ) ) );
+
   }
 }
 
