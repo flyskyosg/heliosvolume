@@ -419,15 +419,15 @@ void FlashDocument::_buildScene ( Usul::Interfaces::IUnknown* caller )
           if ( _drawVolume )
           {
             osg::ref_ptr<osg::Image> image ( timestep->buildVolume ( num, useMin, useMax ) );
-            low->addChild  ( this->_buildVolume ( *timestep, image.get(), 8,  bb, tf.get() ) );
-            high->addChild ( this->_buildVolume ( *timestep, image.get(), 64, bb, tf.get() ) );
+            low->addChild  ( this->_buildVolume ( *timestep, image.get(), 1,  bb, tf.get() ) );
+            //high->addChild ( this->_buildVolume ( *timestep, image.get(), 64, bb, tf.get() ) );
           }
           
           // Make a lod.
           osg::ref_ptr<osg::LOD> lod ( new osg::LOD );
           lod->setCenter ( bb.center() );
           
-          lod->addChild ( high.get(), 0, std::numeric_limits<float>::max() );
+          lod->addChild ( low.get(), 0, std::numeric_limits<float>::max() );
           lod->addChild ( low.get(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::min() );
           
           // Add the lod to the scene.

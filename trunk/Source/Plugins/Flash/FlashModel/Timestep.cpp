@@ -436,11 +436,11 @@ osg::Image* Timestep::buildVolume ( unsigned int num, double minimum, double max
 	  minimum = this->_applyFunction( type, _minimum, _vMinimum );
 	  maximum = this->_applyFunction( type, _maximum, _vMaximum );
   }
-  else
-  {
-	  minimum = this->_applyFunction( type, minimum, _vMinimum );
-	  maximum = this->_applyFunction( type, maximum, _vMaximum );		
-  }
+// else
+// {
+//	  minimum = this->_applyFunction( type, minimum, _vMinimum );
+//	  maximum = this->_applyFunction( type, maximum, _vMaximum );		
+//  }
 	
   // TODO: remove before final build
   // some debug statements
@@ -593,7 +593,7 @@ double Timestep::_applyFunction( int functionCode, double value, double value2 )
     // Apply a log function to the input value
     case Flash::IFlashDocument::LOG_FUNCTION:
     {
-      value = log( value );
+      value = log10( value );
       break;
     }
     // Apply a scalar multiplier to the input value
@@ -606,7 +606,7 @@ double Timestep::_applyFunction( int functionCode, double value, double value2 )
 	case Flash::IFlashDocument::MULT_LOG_FUNCTION:
 	{
 	  value *= value2;
-	  value = log( value );
+	  value = log10( value );
 	  break;
 	}
     // do nothing to the value
